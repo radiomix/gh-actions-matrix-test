@@ -22,4 +22,4 @@ jobs:
     strategy:
       matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
     steps:
-    - run: build
+    - run: echo " ${{ matrix.project}}"
