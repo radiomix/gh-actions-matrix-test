@@ -54,7 +54,7 @@ jobs:
         fi
         JSON="$JSON]}"
         echo " *************"
-        echo $JSON
+        echo $JSON  | jq
         echo " *************"
         # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
