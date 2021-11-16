@@ -59,7 +59,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
+
     steps:
+    - name: checkout code
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+
     - name: show tf-folder matrix
     - run: |
         echo " folder:${{ matrix.folder}}"
