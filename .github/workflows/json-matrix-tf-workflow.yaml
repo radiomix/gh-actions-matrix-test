@@ -72,7 +72,6 @@ jobs:
         with:
           terraform_version: 1.0.6
 
-      - name: Terraform fmt in ${{ matrix.folder}}
+      - name: Terraform fmt ${{ matrix.folder}}
         id: fmt
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
         run: terraform -chdir ${{ matrix.folder}} fmt -check
