@@ -36,9 +36,8 @@ jobs:
       run: |
         FILE_LIST=$(echo ${{ steps.check-terraform-folder-for-changed-files.outputs.all_modified_files }} | sort -u)
         DIR_LIST=$(dirname $FILE_LIST | sort -u)
-        echo " *************"
-        echo "$DIR_LIST"
-        echo " *************"
+        echo "::debug::Found folder list:"
+        echo "::debug::$DIR_LIST"
         JSON="{\"include\":["
         for FOLDER in $(echo $DIR_LIST); do
           echo " *** Adding folder:$FOLDER:"
@@ -50,11 +49,9 @@ jobs:
           JSON="${JSON%?}"
         fi
         JSON="$JSON]}"
-        echo " *************"
-        echo $JSON  | jq
-        echo " *************"
-        echo " *** Difficult to tell why, but we get duplicates!!"
-        # Set output
+        echo "::debug:: created JSON matrix"
+        echo $JSON | jq
+        # Set json output to be uses as matrix strategy.
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
   run-matrix:
