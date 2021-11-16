@@ -56,6 +56,10 @@ jobs:
         echo " *************"
         echo $JSON  | jq
         echo " *************"
+        echo " *** Difficult to tell why, but we get duplicates!!"
+        echo " *************"
+        echo $JSON  | jq 'unique'
+        echo " *************"
         # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
