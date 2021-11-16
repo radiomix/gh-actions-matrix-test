@@ -6,7 +6,7 @@
 #   - Combining this with run-matrix.outputs you can build a workflow that has a fully dynamic matrix.
 #
 
-name: build
+name: terraform
 on: push
 jobs:
   create-matrix:
