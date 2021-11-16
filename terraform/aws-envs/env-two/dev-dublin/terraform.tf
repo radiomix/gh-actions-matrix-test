@@ -7,24 +7,4 @@ terraform {
       source = "hashicorp/random"
     }
   }
-}  main.tf
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+}
