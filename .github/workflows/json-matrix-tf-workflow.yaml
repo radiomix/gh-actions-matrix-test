@@ -3,7 +3,7 @@
 # Source: https://github.blog/changelog/2020-04-15-github-actions-new-workflow-features/
 #   - Now you can include completely new combinations and even specify all of your matrix legs with include.
 #   - The Actions expression language has a fromJSON(value) method that can take a stingified JSON object and bind it to a property.
-#   - Combining this with run-tf-matrix.outputs you can build a workflow that has a fully dynamic matrix.
+#   - Combining this with run-matrix.outputs you can build a workflow that has a fully dynamic matrix.
 #
 
 name: terraform
@@ -54,29 +54,26 @@ jobs:
         # Set json output to be uses as matrix strategy.
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
-  run-tf-matrix:
+  run-matrix:
     needs: create-matrix
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
 
     steps:
-    - name: checkout code
-      uses: actions/checkout@v2
-
-    - name: setup TF
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.0.6
-        fetch-depth: 2
+    # - uses: actions/checkout@v2
+    # - uses: hashicorp/setup-terraform@v1
+    #   with:
+    #     terraform_version: 1.0.6
+    #     fetch-depth: 2
 
     - name: show tf-folder matrix
     - run: |
         echo " folder:${{ matrix.folder}}"
 
-    - name: Terraform init
-      run: terraform -chdir ${{ matrix.folder}} init
+    # - name: Terraform init
+    #   run: terraform -chdir ${{ matrix.folder}} init
 
-    - name: Terraform fmt
-      id: fmt
-      run: terraform -chdir ${{ matrix.folder}} fmt -check
+    # - name: Terraform fmt
+    #   id: fmt
+    #   run: terraform -chdir ${{ matrix.folder}} fmt -check
