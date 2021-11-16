@@ -36,8 +36,9 @@ jobs:
       run: |
         FILE_LIST=$(echo ${{ steps.check-terraform-folder-for-changed-files.outputs.all_modified_files }} | sort -u)
         DIR_LIST=$(dirname $FILE_LIST | sort -u)
-        echo "::debug::Found folder list:"
-        echo "::debug::$DIR_LIST"
+        echo " *************"
+        echo "$DIR_LIST"
+        echo " *************"
         JSON="{\"include\":["
         for FOLDER in $(echo $DIR_LIST); do
           echo " *** Adding folder:$FOLDER:"
@@ -49,9 +50,11 @@ jobs:
           JSON="${JSON%?}"
         fi
         JSON="$JSON]}"
-        echo "::debug:: created JSON matrix"
-        echo $JSON | jq
-        # Set json output to be uses as matrix strategy.
+        echo " *************"
+        echo $JSON  | jq
+        echo " *************"
+        echo " *** Difficult to tell why, but we get duplicates!!"
+        # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
   run-matrix:
@@ -59,21 +62,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
-
     steps:
-    # - uses: actions/checkout@v2
-    # - uses: hashicorp/setup-terraform@v1
-    #   with:
-    #     terraform_version: 1.0.6
-    #     fetch-depth: 2
-
-    - name: show tf-folder matrix
     - run: |
         echo " folder:${{ matrix.folder}}"
-
-    # - name: Terraform init
-    #   run: terraform -chdir ${{ matrix.folder}} init
-
-    # - name: Terraform fmt
-    #   id: fmt
-    #   run: terraform -chdir ${{ matrix.folder}} fmt -check
