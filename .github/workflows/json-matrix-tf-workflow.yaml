@@ -17,14 +17,18 @@ jobs:
     - name: checkout code
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       uses: actions/checkout@v2
+
     - name: test changed files
-    # Only run terraform IF tf files changed:
-    # https://github.com/tj-actions/changed-files
+      # Only run terraform IF tf files changed: https://github.com/tj-actions/changed-files
+      # output: all_changed_and_modified_files (list of all files changed/modified)
       uses: tj-actions/changed-files@v1.1.2
       with:
         files: |
           terraform/
         fetch-depth: 2
+
+    - name: set matrix
+      id: set-matrix
       run: echo "::set-output name=matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
 
   run-matrix:
