@@ -41,11 +41,8 @@ jobs:
         echo " *************"
         JSON="{\"include\":["
         for FOLDER in $(echo $DIR_LIST); do
-           # Add build to the matrix only if it is not already included
-          JSONline+="{\"folder\": \"$FOLDER\"},"
-          if [[ "$JSON" != *"$JSONline"* ]]; then
-            JSON="$JSON$JSONline"
-          fi
+          echo " *** Adding folder:$FOLDER:"
+          JSON+="{\"folder\": \"$FOLDER\"},"
         done
 
         # Remove last "," and add closing brackets
@@ -57,9 +54,6 @@ jobs:
         echo $JSON  | jq
         echo " *************"
         echo " *** Difficult to tell why, but we get duplicates!!"
-        echo " *************"
-        echo $JSON  | jq 'unique'
-        echo " *************"
         # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
