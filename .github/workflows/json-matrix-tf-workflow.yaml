@@ -61,10 +61,11 @@ jobs:
       matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
 
     steps:
-    - name: checkout code
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: checkout code and setup TF
       uses: actions/checkout@v2
+    - uses: hashicorp/setup-terraform@v1
       with:
+        terraform_version: 1.0.6
         fetch-depth: 2
 
     - name: show tf-folder matrix
@@ -72,9 +73,6 @@ jobs:
         echo " folder:${{ matrix.folder}}"
 
     - name: Terraform init
-    - uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.0.6
       run: terraform -chdir ${{ matrix.folder}} init
 
     - name: Terraform fmt
