@@ -3,24 +3,35 @@
 # Source: https://github.blog/changelog/2020-04-15-github-actions-new-workflow-features/
 #   - Now you can include completely new combinations and even specify all of your matrix legs with include.
 #   - The Actions expression language has a fromJSON(value) method that can take a stingified JSON object and bind it to a property.
-#   - Combining this with test-run-matrix.outputs you can build a workflow that has a fully dynamic matrix.
+#   - Combining this with run-matrix.outputs you can build a workflow that has a fully dynamic matrix.
 #
 
 name: build
 on: push
 jobs:
-  test-create-matrix:
+  create-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.test-set-matrix.outputs.matrix }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - id: test-set-matrix
+    - name: checkout code
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      uses: actions/checkout@v2
+    - name: test changed files
+    # Only run terraform IF tf files changed:
+    # https://github.com/tj-actions/changed-files
+      uses: tj-actions/changed-files@v1.1.2
+      with:
+        files: |
+          terraform/
+        fetch-depth: 2
       run: echo "::set-output name=matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
-  test-run-matrix:
-    needs: test-create-matrix
+
+  run-matrix:
+    needs: create-matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.test-create-matrix.outputs.matrix)}}
+      matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
     steps:
     - run: |
         echo " project:${{ matrix.project}}"
