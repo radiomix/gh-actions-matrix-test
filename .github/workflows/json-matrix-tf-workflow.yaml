@@ -67,7 +67,13 @@ jobs:
         run: |
           echo " folder:${{ matrix.folder}}"
 
+      - name: checkout code and install tf tools
       - uses: actions/checkout@v2
       - uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.6
+
+      - name: Terraform fmt in ${{ matrix.folder}}
+        id: fmt
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: terraform -chdir ${{ matrix.folder}} fmt -check
