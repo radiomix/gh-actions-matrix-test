@@ -17,6 +17,8 @@ jobs:
     - name: checkout code
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
 
     - name: test changed files
       # Only run terraform IF tf files changed: https://github.com/tj-actions/changed-files
@@ -25,7 +27,6 @@ jobs:
       with:
         files: |
           terraform/
-        fetch-depth: 2
 
     - name: set matrix
       id: set-matrix
