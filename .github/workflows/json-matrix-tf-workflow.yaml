@@ -21,6 +21,7 @@ jobs:
         fetch-depth: 2
 
     - name: test changed files
+      id: check-terraform-folder-for-changed-files
       # Only run terraform IF tf files changed: https://github.com/tj-actions/changed-files
       # output: all_changed_and_modified_files (list of all files changed/modified)
       uses: tj-actions/changed-files@v1.1.2
@@ -30,7 +31,29 @@ jobs:
 
     - name: set matrix
       id: set-matrix
-      run: echo "::set-output name=matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
+      # set JSON-matrix as output for usage in other jobs/steps
+      # source: https://stackoverflow.com/questions/59977364/github-actions-how-use-strategy-matrix-with-script
+      run: |
+        FILE_LIST=$(echo ${{ steps.check-terraform-folder-for-changed-files.outputs.all_modified_files }} | sort -u)
+        DIR_LIST=$(dirname $FILE_LIST | sort -u)
+        echo "$DIR_LIST"
+        JSON="{\"include\":["
+        for FOLDER in $(echo $DIR_LIST); do
+           # Add build to the matrix only if it is not already included
+          JSONline+="{\"directory\": \"$FOLDER\"},"
+          if [[ "$JSON" != *"$JSONline"* ]]; then
+            JSON="$JSON$JSONline"
+          fi
+        done
+
+        # Remove last "," and add closing brackets
+        if [[ $JSON == *, ]]; then
+          JSON="${JSON%?}"
+        fi
+        JSON="$JSON]}"
+        echo $JSON
+        # Set output
+        echo "::set-output name=matrix::$( echo "$JSON" )"
 
   run-matrix:
     needs: create-matrix
