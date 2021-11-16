@@ -39,11 +39,11 @@ jobs:
         echo "$DIR_LIST"
         JSON="{\"include\":["
         for FOLDER in $(echo $DIR_LIST); do
-           # Add build to the matrix only if it is not already included
+          # Add build to the matrix only if it is not already included
           JSONline+="{\"folder\": \"$FOLDER\"},"
-          if [[ "$JSON" != *"$JSONline"* ]]; then
-            JSON="$JSON$JSONline"
-          fi
+          # if [[ "$JSON" != *"$JSONline"* ]]; then
+          #   JSON="$JSON$JSONline"
+          # fi
         done
 
         # Remove last "," and add closing brackets
