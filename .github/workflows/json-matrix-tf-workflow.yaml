@@ -40,7 +40,7 @@ jobs:
         JSON="{\"include\":["
         for FOLDER in $(echo $DIR_LIST); do
            # Add build to the matrix only if it is not already included
-          JSONline+="{\"directory\": \"$FOLDER\"},"
+          JSONline+="{\"folder\": \"$FOLDER\"},"
           if [[ "$JSON" != *"$JSONline"* ]]; then
             JSON="$JSON$JSONline"
           fi
@@ -62,5 +62,4 @@ jobs:
       matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
     steps:
     - run: |
-        echo " project:${{ matrix.project}}"
-        echo " config:${{ matrix.config}}"
+        echo " project:${{ matrix.folder}}"
