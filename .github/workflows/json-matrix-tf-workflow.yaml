@@ -74,4 +74,4 @@ jobs:
 
       - name: Terraform fmt ${{ matrix.folder}}
         id: fmt
-        run: terraform -chdir ${{ matrix.folder}} fmt -check
+        run: terraform -chdir=${{ matrix.folder}} fmt -check
