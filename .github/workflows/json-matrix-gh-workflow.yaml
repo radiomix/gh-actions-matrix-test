@@ -7,7 +7,9 @@
 #
 
 name: build
-on: push
+on:
+  # Workflow is for testing and used manually.
+  workflow_dispatch:
 jobs:
   test-create-matrix:
     runs-on: ubuntu-latest
