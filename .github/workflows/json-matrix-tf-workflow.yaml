@@ -36,7 +36,9 @@ jobs:
       run: |
         FILE_LIST=$(echo ${{ steps.check-terraform-folder-for-changed-files.outputs.all_modified_files }} | sort -u)
         DIR_LIST=$(dirname $FILE_LIST | sort -u)
+        echo " *************"
         echo "$DIR_LIST"
+        echo " *************"
         JSON="{\"include\":["
         for FOLDER in $(echo $DIR_LIST); do
            # Add build to the matrix only if it is not already included
@@ -51,7 +53,9 @@ jobs:
           JSON="${JSON%?}"
         fi
         JSON="$JSON]}"
+        echo " *************"
         echo $JSON
+        echo " *************"
         # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
