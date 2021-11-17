@@ -23,5 +23,24 @@ output "domain-name" {
 
 output "application-url" {
   value = "${aws_instance.web.public_dns}/index.php"
-}
+} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  

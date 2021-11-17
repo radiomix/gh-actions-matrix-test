@@ -36,14 +36,13 @@ jobs:
       run: |
         FILE_LIST=$(echo ${{ steps.check-terraform-folder-for-changed-files.outputs.all_modified_files }} | sort -u)
         DIR_LIST=$(dirname $FILE_LIST | sort -u)
+        echo " *************"
         echo "$DIR_LIST"
+        echo " *************"
         JSON="{\"include\":["
         for FOLDER in $(echo $DIR_LIST); do
-           # Add build to the matrix only if it is not already included
-          JSONline+="{\"directory\": \"$FOLDER\"},"
-          if [[ "$JSON" != *"$JSONline"* ]]; then
-            JSON="$JSON$JSONline"
-          fi
+          echo " *** Adding folder:$FOLDER:"
+          JSON+="{\"folder\": \"$FOLDER\"},"
         done
 
         # Remove last "," and add closing brackets
@@ -51,7 +50,9 @@ jobs:
           JSON="${JSON%?}"
         fi
         JSON="$JSON]}"
-        echo $JSON
+        echo " *************"
+        echo $JSON  | jq
+        echo " *************"
         # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
@@ -60,7 +61,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
+
     steps:
-    - run: |
-        echo " project:${{ matrix.project}}"
-        echo " config:${{ matrix.config}}"
+      - name: show folder
+        run: |
+          echo " folder:${{ matrix.folder}}"
+
+      - uses: actions/checkout@v2
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.6
+
+      - name: Terraform fmt ${{ matrix.folder}}
+        id: fmt
+        run: terraform -chdir=${{ matrix.folder}} fmt -check
