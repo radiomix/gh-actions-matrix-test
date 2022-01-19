@@ -27,7 +27,7 @@ jobs:
       uses: tj-actions/changed-files@v13
       with:
         files: |
-          terraform/
+          terraform/**/*tf
 
     - name: set matrix
       id: set-matrix
@@ -55,6 +55,11 @@ jobs:
         echo " *************"
         # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
+
+    - name: show folder
+      run: |
+        echo " folder:${{ matrix.folder}}"
+        echo " Do we have changed-files:${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}:"
 
   run-tf-matrix:
     needs: create-tf-matrix
