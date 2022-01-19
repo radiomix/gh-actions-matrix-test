@@ -3,19 +3,19 @@
 # Source: https://github.blog/changelog/2020-04-15-github-actions-new-workflow-features/
 #   - Now you can include completely new combinations and even specify all of your matrix legs with include.
 #   - The Actions expression language has a fromJSON(value) method that can take a stingified JSON object and bind it to a property.
-#   - Combining this with run-matrix.outputs you can build a workflow that has a fully dynamic matrix.
+#   - Combining this with run-tf-matrix.outputs you can build a workflow that has a fully dynamic matrix.
 #
 
 name: terraform
 on: push
 jobs:
-  create-matrix:
+  create-tf-matrix:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - name: checkout code
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       uses: actions/checkout@v2
       with:
         fetch-depth: 2
@@ -24,7 +24,7 @@ jobs:
       id: check-terraform-folder-for-changed-files
       # Only run terraform IF tf files changed: https://github.com/tj-actions/changed-files
       # output: all_changed_and_modified_files (list of all files changed/modified)
-      uses: tj-actions/changed-files@v1.1.2
+      uses: tj-actions/changed-files@v13
       with:
         files: |
           terraform/
@@ -56,11 +56,11 @@ jobs:
         # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
-  run-matrix:
-    needs: create-matrix
+  run-tf-matrix:
+    needs: create-tf-matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
+      matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
 
     steps:
       - name: show folder
