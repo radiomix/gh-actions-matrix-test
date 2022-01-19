@@ -58,12 +58,12 @@ jobs:
 
     - name: show folder
       run: |
-        echo " folder:${{ matrix.folder}}"
-        echo " Do we have changed-files:${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}:"
+        echo " folder:'${{ matrix.folder}}'"
+        echo " Do we have changed-files:'${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}'"
 
   run-tf-matrix:
     needs: create-tf-matrix
-    if: (! ${{ needs.tf-matrix.outputs.only_changed == 'true'}} )
+    if: ${{ needs.tf-matrix.outputs.matrix != ''}}
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
