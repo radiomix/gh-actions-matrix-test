@@ -17,13 +17,13 @@ on:
 
 jobs:
   # Create a JSON-matrix of all folders with changed TF files.
-  create-matrix:
+  create-tf-matrix:
     runs-on: ubuntu-latest
     outputs:
       # Remember JSON-matrix for later usage.
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.set-tf-matrix.outputs.matrix }}
       # True/False ONLY_IFF TF file changed
-      run_terraform: ${{ steps.set-matrix.outputs.check-matrix }}
+      run_terraform: ${{ steps.set-tf-matrix.outputs.check-matrix }}
     steps:
     - name: checkout code
       uses: actions/checkout@v2
@@ -42,12 +42,10 @@ jobs:
         files: |
           terraform/**/*tf
 
-    - name: Set matrix
-      id: set-matrix
-      # Create a JSON-matrix of ALL FILES CHANDED as output for usage in other jobs/steps
+    - name: set TF matrix
+      id: set-tf-matrix
+      # Create a JSON-matrix of FOLDER WITH CHANDED TF FILES as outputs.matrix for usage in other jobs/steps
       # Source: https://stackoverflow.com/questions/59977364/github-actions-how-use-strategy-matrix-with-script
-      # - Collect list of chanded files and folders
-      # - Construct JSON-matrix
       run: |
         FILE_LIST=$(echo ${{ steps.check-for-changed-files.outputs.all_modified_files }} | sort -u)
         DIR_LIST=$(dirname $FILE_LIST | sort -u)
@@ -70,9 +68,6 @@ jobs:
         echo " *************"
         # Set output
         echo "::set-output name=matrix::$( echo "$JSON" )"
-        if [[]]; then
-          echo "::set-output name=tf-files-changed=true"
-        fi
 
     - name: Check matrix
       id: check-matrix
@@ -80,7 +75,7 @@ jobs:
       if: (! ${{ steps.check-for-changed-files.outputs.only_changed }} )
       # set an output to decide wheather to trigger TF commands
       run: |
-        echo "'${{ steps.set-matrix.outputs.matrix }}'"
+        echo "'${{ steps.set-tf-matrix.outputs.matrix }}'"
         run_matrix=false
         for file in ${{ steps.check-for-changed-files.outputs.all_changed_files }}; do
           echo "$file was changed"
@@ -90,11 +85,11 @@ jobs:
 ####################################
   Terraform:
     runs-on: ubuntu-latest
-    needs: create-matrix
+    needs: create-tf-matrix
     # syntax: organisation/repo/.gihub/workflows/reusable-action.yaml@version
     ## FIXME: Before merging in: replace @mkl/GH-actions/TF-matrix with @master
     strategy:
-      matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
+      matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
     defaults:
        run:
         shell: bash
@@ -109,17 +104,17 @@ jobs:
     # - name: run-matrix
     #   uses: elemica/elemicatms-operations/.github/workflows/terraform-base-reusable-workflow.yaml@mkl/GH-actions/TF-matrix
     #   with:
-    #     terraform-folder: ${{fromJson(needs.create-matrix.outputs.matrix)}}
+    #     terraform-folder: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
     #     secrets:
     #       cli_config_credentials_token: ${{ secrets.ELEMICATMS_OPERATIONS_TERRAFORM_CI_TOKEN }}
 
 ##########################################
   # # Run TF commands per JSON-matrix.
   # run-matrix:
-  #   needs: create-matrix
+  #   needs: create-tf-matrix
   #   runs-on: ubuntu-latest
   #   strategy:
-  #     matrix: ${{fromJson(needs.create-matrix.outputs.matrix)}}
+  #     matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
   #   defaults:
   #     run:
   #       shell: bash
