@@ -63,11 +63,11 @@ jobs:
 
   run-tf-matrix:
     needs: create-tf-matrix
+    if: (! ${{ needs.tf-matrix.outputs.only_changed == 'true'}} )
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
     # prevent this job from running with an empty matrix: It would fail.
-    if: (! ${{ needs.tf-matrix.outputs.only_changed }} )
 
     steps:
       - name: show folder
