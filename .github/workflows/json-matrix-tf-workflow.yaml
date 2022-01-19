@@ -6,7 +6,7 @@
 #   - Combining this with run-tf-matrix.outputs you can build a workflow that has a fully dynamic matrix.
 #
 
-name: terraform
+name: tf-matrix
 on: push
 jobs:
   create-tf-matrix:
@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
     # prevent this job from running with an empty matrix: It would fail.
-    if: (! ${{ steps.check-terraform-folder-for-changed-files.outputs.only_changed }} )
+    if: (! ${{ tf-matrix.steps.check-terraform-folder-for-changed-files.outputs.only_changed }} )
 
     steps:
       - name: show folder
