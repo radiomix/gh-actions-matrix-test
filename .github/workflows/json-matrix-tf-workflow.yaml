@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
     # prevent this job from running with an empty matrix: It would fail.
-    if: (! ${{ jobs.needs.tf-matrix.outputs.only_changed }} )
+    if: (! ${{ needs.tf-matrix.outputs.only_changed }} )
 
     steps:
       - name: show folder
