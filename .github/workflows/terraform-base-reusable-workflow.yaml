@@ -1,0 +1,122 @@
+# Reusable terraform workflow restricted to folder.
+# Needs inputs to specify restricted folder.
+name: terraform-base-reusable-workflow
+
+on:
+  # Workflow is reusable and will be called only.
+  workflow_call:
+    # We parametrize this workflow with inputs terraform-folder from the caller.
+    # We fail if any of these inputs are missing.
+    inputs:
+      terraform-folder:
+        required: true
+        type: string
+    secrets:
+      cli_config_credentials_token:
+        required: true
+
+jobs:
+  # Validates syntax and arguments
+  terraform:
+    name: Terraform
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.terraform-folder }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          # Only partly explained: https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          # Nice explanation of 'git checkout HEAD^1': https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
+          # fetch-depth 0 = full history, 1 = only last commit (default), 2 = HEAD^ (last PARENT commit or merge in)
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.6
+          cli_config_credentials_token: ${{ secrets.cli_config_credentials_token }}
+
+      # Output the folder, we restrict terraform actions to
+      - name: Show terraform folders
+        run: |
+          echo "  AwsAccountName:    ${{ inputs.AwsAccountName }}"
+          echo "  AwsEnvironmentName:${{ inputs.AwsEnvironmentName }}"
+          echo "  Working dir:"
+          echo "    terraform/aws-environments/${{ inputs.AwsAccountName }}/${{ inputs.AwsEnvironmentName }}"
+
+      # Only run terraform IF tf files changed:
+      # https://github.com/tj-actions/changed-files
+      - name: Check if TF files changed
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v1.1.2
+        with:
+          # list files that need to be changed, to run THESE actions
+          files: |
+            terraform/aws-environments/${{ inputs.AwsAccountName }}/${{ inputs.AwsEnvironmentName }}/*tf
+
+      - name: Terraform fmt
+        id: fmt
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: terraform fmt -check
+
+      - name: Terraform init
+        id: init
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: terraform init
+        continue-on-error: false
+
+      - name: Terraform validate
+        id: validate
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        if: github.event_name == 'pull_request' && steps.changed-files-specific.outputs.any_changed == 'true'
+        run: terraform plan -no-color
+        continue-on-error: true
+
+      - name: Update Pull Request
+        if: github.event_name == 'pull_request' && steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: actions/github-script@v4.0.2
+
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure' && steps.changed-files-specific.outputs.any_changed == 'true'
+        run: exit 1
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push' && steps.changed-files-specific.outputs.any_changed == 'true'
+        run: terraform apply -auto-approve
