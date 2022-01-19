@@ -31,7 +31,7 @@ jobs:
           # Only partly explained: https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           # Nice explanation of 'git checkout HEAD^1': https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
           # fetch-depth 0 = full history, 1 = only last commit (default), 2 = HEAD^ (last PARENT commit or merge in)
-        fetch-depth: 2
+        fetch-depth: 0
 
     - name: Check changed files
       # Check for changed files: https://github.com/tj-actions/changed-files
