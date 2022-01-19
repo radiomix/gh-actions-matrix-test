@@ -86,31 +86,16 @@ jobs:
 ####################################
   run-tf-matrix:
     needs: create-tf-matrix
+    # prevent this job from running with an empty matrix: It would fail.
     # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
     if: ${{ needs.tf-matrix.outputs.matrix != ''}}
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
-    # prevent this job from running with an empty matrix: It would fail.
-
+    ## FIXME: Before merging in: replace @this/branch-name with @master
     steps:
-      - name: show folder
-        run: |
-          echo " folder:${{ matrix.folder}}"
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 2
-
-      - name: show folder
-        run: |
-          echo $(pwd)
-          echo "matrix.folder: Running in folder:${{ matrix.folder }}:"
-          echo "PWD:  Running in folder:$(pwd):"
-
-      - name: run-matrix
-        ## FIXME: Before merging in: replace @this/branch-name with @master
-        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-        with:
-          terraform-folder: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
-          cli_config_credentials_token: ${{ my-secret }}
+    - name: call reusable tf workflow
+      uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+      with:
+        terraform-folder: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
+        cli_config_credentials_token: ${{ my-secret }}
