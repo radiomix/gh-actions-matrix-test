@@ -40,7 +40,7 @@ jobs:
       uses: tj-actions/changed-files@v13
       with:
         files: |
-          terraform/**/*tf
+          terraform/**/*.tf
 
     - name: set TF matrix
       id: set-tf-matrix
