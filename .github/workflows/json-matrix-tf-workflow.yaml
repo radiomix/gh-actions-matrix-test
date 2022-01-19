@@ -61,6 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
+    # prevent this job from running with an empty matrix: It would fail.
+    if: (! ${{ steps.check-terraform-folder-for-changed-files.outputs.only_changed }} )
 
     steps:
       - name: show folder
