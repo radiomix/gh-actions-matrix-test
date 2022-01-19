@@ -12,7 +12,7 @@ jobs:
   create-tf-matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.set-tf-matrix.outputs.matrix }}
     steps:
     - name: checkout code
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -30,7 +30,7 @@ jobs:
           terraform/**/*tf
 
     - name: set matrix
-      id: set-matrix
+      id: set-tf-matrix
       # set JSON-matrix as output for usage in other jobs/steps
       # source: https://stackoverflow.com/questions/59977364/github-actions-how-use-strategy-matrix-with-script
       run: |
@@ -58,7 +58,7 @@ jobs:
 
     - name: show folder
       run: |
-        echo " folder:'${{ steps.set-matrix.outputs.matrix}}'"
+        echo " folder:'${{ steps.set-tf-matrix.outputs.matrix}}'"
         echo " Do we have changed-files:'${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}'"
 
   run-tf-matrix:
