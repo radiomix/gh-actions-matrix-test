@@ -58,7 +58,7 @@ jobs:
 
     - name: show folder
       run: |
-        echo " folder:'${{ matrix.folder}}'"
+        echo " folder:'${{ steps.set-matrix.outputs.matrix}}'"
         echo " Do we have changed-files:'${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}'"
 
   run-tf-matrix:
@@ -76,6 +76,9 @@ jobs:
           echo " folder:${{ matrix.folder}}"
 
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
       - uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.6
