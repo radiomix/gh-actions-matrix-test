@@ -86,6 +86,7 @@ jobs:
 ####################################
   run-tf-matrix:
     needs: create-tf-matrix
+    runs-on: ubuntu-latest
     # prevent this job from running with an empty matrix: It would fail.
     # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
     if: ${{ needs.tf-matrix.outputs.matrix != ''}}
