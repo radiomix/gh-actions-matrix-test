@@ -80,30 +80,37 @@ jobs:
         for file in ${{ steps.check-for-changed-files.outputs.all_changed_files }}; do
           echo "$file was changed"
         done
+
 ####################################
 # run tf-matrix as reusable workflow
 ####################################
-  Terraform:
-    runs-on: ubuntu-latest
+  run-tf-matrix:
     needs: create-tf-matrix
-    # syntax: organisation/repo/.gihub/workflows/reusable-action.yaml@version
+    # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
+    if: ${{ needs.tf-matrix.outputs.matrix != ''}}
+    runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
-    defaults:
-       run:
-        shell: bash
+    # prevent this job from running with an empty matrix: It would fail.
 
     steps:
-    - name: show folder
-      run: |
-        echo $(pwd)
-        echo "matrix.folder: Running in folder:${{ matrix.folder }}:"
-        echo "PWD:  Running in folder:$(pwd):"
+      - name: show folder
+        run: |
+          echo " folder:${{ matrix.folder}}"
 
-    - name: run-matrix
-      ## FIXME: Before merging in: replace @this/branch-name with @master
-      uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-      with:
-        terraform-folder: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
-        secrets:
-          cli_config_credentials_token: ${{ secrets.ELEMICATMS_OPERATIONS_TERRAFORM_CI_TOKEN }}
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: show folder
+        run: |
+          echo $(pwd)
+          echo "matrix.folder: Running in folder:${{ matrix.folder }}:"
+          echo "PWD:  Running in folder:$(pwd):"
+
+      - name: run-matrix
+        ## FIXME: Before merging in: replace @this/branch-name with @master
+        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+        with:
+          terraform-folder: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
+          cli_config_credentials_token: ${{ my-secret }}
