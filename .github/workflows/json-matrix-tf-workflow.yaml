@@ -63,6 +63,7 @@ jobs:
 
   run-tf-matrix:
     needs: create-tf-matrix
+    # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
     if: ${{ needs.tf-matrix.outputs.matrix != ''}}
     runs-on: ubuntu-latest
     strategy:
