@@ -76,28 +76,21 @@ jobs:
         echo " Run Terraform:'${{ steps.set-tf-matrix.outputs.run_terraform}}'"
         echo " folder:'${{ steps.set-tf-matrix.outputs.matrix}}'"
 
+############################
+# run tf reusable workflow #
+############################
   run-tf-matrix:
+    uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+    with:
+      terraform-folder: ${{ matrix.folder}}
     needs: create-terraform-matrix
     # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
     # if: ${{ needs.create-terraform-matrix.outputs.matrix != ''}}
     if: ${{ needs.create-terraform-matrix.outputs.run_terraform == 'YES'}}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{fromJson(needs.create-terraform-matrix.outputs.matrix)}}
-    # prevent this job from running with an empty matrix: It would fail.
 
-    steps:
-      - name: show folder
-        run: |
-          echo " Folder:${{ matrix.folder}}:"
-          echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
+    # steps:
+    #   - name: show folder
+    #     run: |
+    #       echo " Folder:${{ matrix.folder}}:"
+    #       echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
 
-############################
-# run tf reusable workflow #
-############################
-      - name: run matrix
-        id:  run-matrix
-      ## FIXME: replace with @main
-        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-        with:
-          terraform-folder: ${{ matrix.folder}}
