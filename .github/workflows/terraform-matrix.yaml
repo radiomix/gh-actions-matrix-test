@@ -35,11 +35,12 @@ jobs:
         files: |
           terraform/**/*tf
 
-    - name: set matrix
+    - name: set tf matrix
       id: set-tf-matrix
       # set JSON-matrix as output for usage in other jobs/steps
       # source: https://stackoverflow.com/questions/59977364/github-actions-how-use-strategy-matrix-with-script
       run: |
+        run_terraform=NO
         FILE_LIST=$(echo ${{ steps.check-terraform-folder-for-changed-files.outputs.all_modified_files }} | sort -u)
         DIR_LIST=$(dirname $FILE_LIST | sort -u)
         echo " *************"
@@ -48,6 +49,7 @@ jobs:
         JSON="{\"include\":["
         for FOLDER in $(echo $DIR_LIST); do
           echo " *** Adding folder:$FOLDER:"
+          run_terraform=YES
           JSON+="{\"folder\": \"$FOLDER\"},"
         done
 
@@ -63,14 +65,12 @@ jobs:
         echo "::set-output name=matrix::$( echo "$JSON" )"
 
         # Check empty matrix
-        echo ::set-output name=run_terraform::'NO'
-        for file in ${{ steps.check-for-changed-files.outputs.all_changed_files }}; do
-          echo "File $file was changed"
-          run_terraform=true
-        done
-        if [[  $run_terraform  ]]; then
+        if [[  "$run_terraform" == "YES"  ]]; then
           echo ::set-output name=run_terraform::${{ 'YES' }}
+        else
+          echo ::set-output name=run_terraform::${{ 'NO' }}
         fi
+
     - name: show folder
       run: |
         echo " Run Terraform:'${{ steps.set-tf-matrix.outputs.run_terraform}}'"
@@ -90,4 +90,5 @@ jobs:
     steps:
       - name: show folder
         run: |
-          echo " folder:${{ matrix.folder}}"
+          echo " Folder:${{ matrix.folder}}:"
+          echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
