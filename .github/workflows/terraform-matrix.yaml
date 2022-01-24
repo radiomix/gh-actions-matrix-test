@@ -83,7 +83,7 @@ jobs:
     - name: Check matrix
       id: check-matrix
       run: |
-        echo "Do we need to run the matrix:${{ fromJSON(steps.set-matrix.outputs.run_terraform) }}:"
+        echo "Do we need to run the matrix:${{ steps.set-matrix.outputs.run_terraform }}:"
         echo "PWD:  Running in folder:$(pwd):"
         echo "matrix.folder:${{ steps.set-matrix.outputs.matrix }}:"
 
