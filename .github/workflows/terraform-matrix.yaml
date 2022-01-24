@@ -76,7 +76,6 @@ jobs:
       # FIXME: sieve out other_changed_files IFF NOT only_changed
       if: (! ${{ steps.check-for-changed-files.outputs.only_changed }} )
       # set an output to decide wheather to trigger TF commands
-      # for toJSON see: https://github.community/t/boolean-evaluation-workflow-yaml/173565
       run: |
         echo ::set-output name=run_terraform::${{ false }}
         for file in ${{ steps.check-for-changed-files.outputs.all_changed_files }}; do
@@ -93,9 +92,8 @@ jobs:
   Terraform:
     runs-on: ubuntu-latest
     needs: create-tf-matrix
-    # for fromJSON see: https://github.community/t/boolean-evaluation-workflow-yaml/173565
-    if: fromJSON(needs.create-tf-matrix.steps.check-matrix.outputs.run_terraform)
-    ## FIXME: Before merging in: replace @mkl/GH-actions/TF-matrix with @master
+    # for fromJSON of booleans, see: https://github.community/t/boolean-evaluation-workflow-yaml/173565
+    if: ${{ fromJSON(needs.create-tf-matrix.steps.check-matrix.outputs.run_terraform) }}
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
     defaults:
@@ -112,6 +110,7 @@ jobs:
 
     # - name: run-matrix
     # syntax: organisation/repo/.gihub/workflows/reusable-action.yaml@version
+    ## FIXME: Before merging in: replace @mkl/GH-actions/TF-matrix with @master
     #   uses: elemica/elemicatms-operations/.github/workflows/terraform-base-reusable-workflow.yaml@mkl/GH-actions/TF-matrix
     #   with:
     #     terraform-folder: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
