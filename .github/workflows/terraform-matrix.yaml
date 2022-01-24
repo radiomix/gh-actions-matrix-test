@@ -94,7 +94,7 @@ jobs:
   Terraform:
     runs-on: ubuntu-latest
     needs: create-tf-matrix
-    if: ${{ contains(needs.create-tf-matrix.outputs.run_terraform,'YES' }}
+    if: ${{ contains(needs.create-tf-matrix.outputs.run_terraform,YES }}
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
     defaults:
