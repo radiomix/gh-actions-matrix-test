@@ -96,6 +96,7 @@ jobs:
     needs: create-tf-matrix
     # for fromJSON see: https://github.community/t/boolean-evaluation-workflow-yaml/173565
     # if: fromJSON(needs.create-tf-matrix.steps.check-matrix.outputs.run_terraform)
+    if: ${{ true }})
     ## FIXME: Before merging in: replace @mkl/GH-actions/TF-matrix with @master
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
