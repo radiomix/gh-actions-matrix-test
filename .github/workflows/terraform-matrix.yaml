@@ -78,14 +78,13 @@ jobs:
       # set an output to decide wheather to trigger TF commands
       # for toJSON see: https://github.community/t/boolean-evaluation-workflow-yaml/173565
       run: |
-        set run_terraform=false
-        echo ::set-output name=run_terraform::${{ toJSON($run_terraform) }}
+        echo ::set-output name=run_terraform::${{ false }}
         for file in ${{ steps.check-for-changed-files.outputs.all_changed_files }}; do
           echo "File $file was changed"
           run_terraform=true
         done
         if [[  $run_terraform  ]]; then
-          echo ::set-output name=run_terraform::${{ toJSON($run_terraform) }}
+          echo ::set-output name=run_terraform::${{ true }}
         fi
 
 ####################################
