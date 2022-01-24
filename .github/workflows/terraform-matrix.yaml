@@ -94,7 +94,7 @@ jobs:
   Terraform:
     runs-on: ubuntu-latest
     needs: create-tf-matrix
-    if: steps.check-matrix.outputs.run_terraform == 'true'
+    if: jobs.create-tf-matrix.steps.check-matrix.outputs.run_terraform == 'true'
 
     # syntax: organisation/repo/.gihub/workflows/reusable-action.yaml@version
     ## FIXME: Before merging in: replace @mkl/GH-actions/TF-matrix with @master
