@@ -7,10 +7,14 @@
 #
 
 name: create-terraform-folder-matrix
-# only run manually
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
 jobs:
-  create-json-matrix:
+  create-terraform-matrix:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-tf-matrix.outputs.matrix }}
@@ -74,13 +78,13 @@ jobs:
         echo " Do we have changed-files:'${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}'"
 
   run-tf-matrix:
-    needs: create-json-matrix
+    needs: create-terraform-matrix
     # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
-    # if: ${{ needs.tf-matrix.outputs.matrix != ''}}
-    if: ${{ needs.tf-matrix.outputs.run_terraform != 'YES'}}
+    # if: ${{ needs.create-terraform-matrix.outputs.matrix != ''}}
+    if: ${{ needs.create-terraform-matrix.outputs.run_terraform != 'YES'}}
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.create-terraform-folder-matrix.outputs.matrix)}}
+      matrix: ${{fromJson(needs.create-terraform-matrix.outputs.matrix)}}
     # prevent this job from running with an empty matrix: It would fail.
 
     steps:
