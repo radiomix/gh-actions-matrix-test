@@ -7,7 +7,8 @@
 #
 
 name: json-tf-matrix
-on: push
+# only run manually
+on: workflow_dispatch
 jobs:
   create-json-matrix:
     runs-on: ubuntu-latest
