@@ -105,7 +105,7 @@ jobs:
     steps:
     - name: show folder
       run: |
-        # echo "Do we need to run the matrix:${{ fromJSON(needs.create-tf-matrix.steps.check-matrix.outputs.run_terraform) }}:"
+        echo "Do we need to run the matrix:${{ fromJSON(needs.create-tf-matrix.outputs.run_terraform) }}:"
         echo "PWD:  Running in folder:$(pwd):"
         echo "matrix.folder:${{ matrix.folder }}:"
 
