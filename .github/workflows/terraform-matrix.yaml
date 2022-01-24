@@ -103,10 +103,9 @@ jobs:
     steps:
     - name: show folder
       run: |
-        echo $(pwd)
-        echo "Do we need to run the matrix:fromJSON(needs.create-tf-matrix.steps.check-matrix.outputs.run_terraform):"
-        echo "matrix.folder: Running in folder:${{ matrix.folder }}:"
         echo "PWD:  Running in folder:$(pwd):"
+        echo "Do we need to run the matrix:${{ fromJSON(needs.create-tf-matrix.steps.check-matrix.outputs.run_terraform) }}:"
+        echo "matrix.folder:${{ matrix.folder }}:"
 
     # - name: run-matrix
     # syntax: organisation/repo/.gihub/workflows/reusable-action.yaml@version
