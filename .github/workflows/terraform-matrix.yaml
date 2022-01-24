@@ -21,9 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       # Remember JSON-matrix for later usage.
-      matrix: ${{ steps.set-tf-matrix.outputs.matrix }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
       # True/False ONLY_IFF TF file changed
-      run_terraform: ${{ steps.set-tf-matrix.outputs.check-matrix }}
+      run_terraform: ${{ steps.set-matrix.outputs.check-matrix }}
     steps:
     - name: checkout code
       uses: actions/checkout@v2
@@ -31,7 +31,7 @@ jobs:
           # Only partly explained: https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           # Nice explanation of 'git checkout HEAD^1': https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
           # fetch-depth 0 = full history, 1 = only last commit (default), 2 = HEAD^ (last PARENT commit or merge in)
-        fetch-depth: 2
+        fetch-depth: 0
 
     - name: Check changed files
       # Check for changed files: https://github.com/tj-actions/changed-files
@@ -40,12 +40,14 @@ jobs:
       uses: tj-actions/changed-files@v13
       with:
         files: |
-          terraform/**/*.tf
+          terraform/**/*tf
 
-    - name: set TF matrix
-      id: set-tf-matrix
-      # Create a JSON-matrix of FOLDER WITH CHANDED TF FILES as outputs.matrix for usage in other jobs/steps
+    - name: Set matrix
+      id: set-matrix
+      # Create a JSON-matrix of ALL FILES CHANDED as output for usage in other jobs/steps
       # Source: https://stackoverflow.com/questions/59977364/github-actions-how-use-strategy-matrix-with-script
+      # - Collect list of chanded files and folders
+      # - Construct JSON-matrix
       run: |
         FILE_LIST=$(echo ${{ steps.check-for-changed-files.outputs.all_modified_files }} | sort -u)
         DIR_LIST=$(dirname $FILE_LIST | sort -u)
@@ -75,28 +77,123 @@ jobs:
       if: (! ${{ steps.check-for-changed-files.outputs.only_changed }} )
       # set an output to decide wheather to trigger TF commands
       run: |
-        echo "'${{ steps.set-tf-matrix.outputs.matrix }}'"
-        run_matrix=false
+        echo "::set-output name=run_terraform::false"
+        echo "'${{ steps.set-matrix.outputs.matrix }}'"
+        run_terraform=false
         for file in ${{ steps.check-for-changed-files.outputs.all_changed_files }}; do
           echo "$file was changed"
+          run_terraform=true
         done
+        if [[  $run_terraform  ]]; then
+          echo "::set-output name=run_terraform::$run_terraform"
+        fi
 
 ####################################
 # run tf-matrix as reusable workflow
 ####################################
-  run-tf-matrix:
-    needs: create-tf-matrix
+  Terraform:
     runs-on: ubuntu-latest
-    # prevent this job from running with an empty matrix: It would fail.
-    # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
-    if: ${{ needs.tf-matrix.outputs.matrix != ''}}
+    needs: create-tf-matrix
+    if: steps.check-matrix.outputs.run_terraform == 'true'
+
+    # syntax: organisation/repo/.gihub/workflows/reusable-action.yaml@version
+    ## FIXME: Before merging in: replace @mkl/GH-actions/TF-matrix with @master
     strategy:
       matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
+    defaults:
+       run:
+        shell: bash
 
     steps:
-      - name: call-reusable-workflow
-        ## FIXME: Before merging in: replace @this/branch-name with @master
-        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-        with:
-          terraform-folder: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
-          cli_config_credentials_token: ${{ my-secret }}
+    - name: show folder
+      run: |
+        echo $(pwd)
+        echo "matrix.folder: Running in folder:${{ matrix.folder }}:"
+        echo "PWD:  Running in folder:$(pwd):"
+
+    # - name: run-matrix
+    #   uses: elemica/elemicatms-operations/.github/workflows/terraform-base-reusable-workflow.yaml@mkl/GH-actions/TF-matrix
+    #   with:
+    #     terraform-folder: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
+    #     secrets:
+    #       cli_config_credentials_token: ${{ secrets.ELEMICATMS_OPERATIONS_TERRAFORM_CI_TOKEN }}
+
+##########################################
+  # # Run TF commands per JSON-matrix.
+  # run-matrix:
+  #   needs: create-tf-matrix
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #       working-directory: ${{ matrix.folder}}
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: hashicorp/setup-terraform@v1
+  #       with:
+  #         terraform_version: 1.0.6
+
+  #     - name: show folder
+  #       run: |
+  #         echo $(pwd)
+  #         echo " Running TF command in folder:${{ matrix.folder}}:"
+
+  #     - name: Terraform fmt ${{ matrix.folder}}
+  #       id: fmt
+  #       run: terraform fmt -check
+  #     - name: Terraform init
+  #       id: init
+  #       run: terraform init
+  #       continue-on-error: false
+
+  #     - name: Terraform validate
+  #       id: validate
+  #       run: terraform validate
+
+  #     - name: Terraform plan
+  #       id: plan
+  #       if: github.event_name == 'pull_request'
+  #       run: terraform plan -no-color
+  #       continue-on-error: true
+
+  #     - name: Update Pull Request
+  #       if: github.event_name == 'pull_request'
+  #       uses: actions/github-script@v4.0.2
+
+  #       env:
+  #         PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         script: |
+  #           const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+  #           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+  #           #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+  #           #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+  #           <details><summary>Show Plan</summary>
+
+  #           \`\`\`\n
+  #           ${process.env.PLAN}
+  #           \`\`\`
+
+  #           </details>
+
+  #           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+  #           github.issues.createComment({
+  #             issue_number: context.issue.number,
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             body: output
+  #           })
+
+  #     - name: Terraform Plan Status
+  #       if: steps.plan.outcome == 'failure'
+  #       run: exit 1
+
+  #     - name: Terraform Apply
+  #       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+  #       run: terraform apply -auto-approve
