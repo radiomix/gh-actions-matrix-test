@@ -95,7 +95,9 @@ jobs:
 ############################
 # run tf reusable workflow #
 ############################
+      - name: run matrix
+        id:  run-matrix
       ## FIXME: replace with @main
-      - uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
         with:
           terraform-folder: ${{ matrix.folder}}
