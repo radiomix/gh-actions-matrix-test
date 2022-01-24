@@ -83,9 +83,9 @@ jobs:
     - name: Check matrix
       id: check-matrix
       run: |
-        echo "Do we need to run the matrix:${{ fromJSON(needs.create-tf-matrix.steps.set-matrix.outputs.run_terraform) }}:"
+        echo "Do we need to run the matrix:${{ fromJSON(steps.set-matrix.outputs.run_terraform) }}:"
         echo "PWD:  Running in folder:$(pwd):"
-        echo "matrix.folder:${{ fromJSON(needs.create-tf-matrix.steps.set-matrix.outputs.matrix) }}:"
+        echo "matrix.folder:${{ fromJSON(steps.set-matrix.outputs.matrix) }}:"
 
 
 ####################################
