@@ -25,11 +25,11 @@ jobs:
 
     strategy:
       matrix:
-        folder: ${{ fromJSON(inputs.terraform-folder) }}
+        folder: ${{ inputs.terraform-folder }}
     defaults:
       run:
         shell: bash
-        working-directory: ${{ fromJSON(inputs.terraform-folder) }}
+        working-directory: ${{ inputs.terraform-folder }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
