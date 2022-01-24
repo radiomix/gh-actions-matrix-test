@@ -6,10 +6,10 @@
 #   - Combining this with run-tf-matrix.outputs you can build a workflow that has a fully dynamic matrix.
 #
 
-name: tf-matrix
+name: json-tf-matrix
 on: push
 jobs:
-  create-tf-matrix:
+  create-json-matrix:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-tf-matrix.outputs.matrix }}
@@ -62,12 +62,12 @@ jobs:
         echo " Do we have changed-files:'${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}'"
 
   run-tf-matrix:
-    needs: create-tf-matrix
+    needs: create-json-matrix
     # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
     if: ${{ needs.tf-matrix.outputs.matrix != ''}}
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.create-tf-matrix.outputs.matrix)}}
+      matrix: ${{fromJson(needs.create-json-matrix.outputs.matrix)}}
     # prevent this job from running with an empty matrix: It would fail.
 
     steps:
