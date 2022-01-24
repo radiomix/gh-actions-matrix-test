@@ -11,9 +11,9 @@ on:
       terraform-folder:
         required: true
         type: string
-    secrets:
-      cli_config_credentials_token:
-        required: true
+    # secrets:
+    #   cli_config_credentials_token:
+    #     required: true
 
 jobs:
   # Validates syntax and arguments
@@ -40,7 +40,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.6
-          cli_config_credentials_token: ${{ secrets.cli_config_credentials_token }}
+          # cli_config_credentials_token: ${{ secrets.cli_config_credentials_token }}
 
       # Output the folder, we restrict terraform actions to
       - name: Show terraform folders

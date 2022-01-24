@@ -75,7 +75,6 @@ jobs:
       run: |
         echo " Run Terraform:'${{ steps.set-tf-matrix.outputs.run_terraform}}'"
         echo " folder:'${{ steps.set-tf-matrix.outputs.matrix}}'"
-        echo " Do we have changed-files:'${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}'"
 
   run-tf-matrix:
     needs: create-terraform-matrix
@@ -92,3 +91,12 @@ jobs:
         run: |
           echo " Folder:${{ matrix.folder}}:"
           echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
+
+############################
+# run tf reusable workflow #
+############################
+      - name: run terraform
+        ## FIXME: replace with @main
+        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+        with:
+          terraform-folder:
