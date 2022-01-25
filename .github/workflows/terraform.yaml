@@ -1,0 +1,33 @@
+#
+# Run Terraform in a folder-matrix.
+#
+
+name: Terraform-Matrix
+on:
+  # Workflow runs on all pushes
+  push:
+
+jobs:
+  tf-create-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: create terraform matrix
+        ## FIXME: replace version with @main
+        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-matrix-reusable-workflow.yaml@tf-matrix
+
+  tf-run-matrix:
+    runs-on: ubuntu-latest
+    needs: tf-create-matrix
+    strategy:
+      matrix: ${{fromJson(needs.tf-create-matrix.outputs.matrix)}}
+    steps:
+      - name: show tf folder
+      - run: |
+          echo " folder:${{ fromJSON(matrix.folder) }}:"
+          echo " run:${{ fromJSON(matrix.run_terraform }}:"
+
+      # - name: run terraform matrix
+      #   ## FIXME: replace version with @main
+      #   uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-matrix-reusable-workflow.yaml@tf-matrix
+      #   with:
+      #     terraform-folder: ${{ matrix.folder }}
