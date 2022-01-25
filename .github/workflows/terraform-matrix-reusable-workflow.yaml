@@ -70,26 +70,21 @@ jobs:
         echo " folder:'${{ steps.create-folder-matrix.outputs.matrix}}'"
 
 # ############################
-# # run tf reusable workflow #
+# # run tf workflow #
 # ############################
-#   run-reusable-terraform:
-#     needs: create-terraform-matrix
-#     # # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
-#     # # if: ${{ needs.create-terraform-matrix.outputs.matrix != ''}}
-#     if: ${{ needs.create-terraform-matrix.outputs.run_terraform == 'YES'}}
-#     uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-#     with:
-#       terraform-folder: ${{ fromJSON(needs.create-terraform-matrix.outputs.folder)}}
+  run-reusable-terraform:
+    needs: create-terraform-matrix
+    runs-on: ubuntu-latest
+    # # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
+    # # if: ${{ needs.create-terraform-matrix.outputs.matrix != ''}}
+    if: ${{ needs.create-terraform-matrix.outputs.run_terraform == 'YES'}}
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJSON(needs.create-terraform-matrix.outputs.matrix) }}
 
-#     ## NEES TO GO INTO REUASABLE ???
-#     # strategy:
-#     #   fail-fast: true
-#     #   matrix: ${{ fromJSON(needs.create-terraform-matrix.outputs.matrix) }}
+    steps:
+      - name: show tf folder
+        run: |
+          echo " Folder:${{ matrix.folder}}:"
+          echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
 
-#     # steps:
-#     #   - name: show tf folder
-#     #     run: |
-#     #       echo " Folder:${{ matrix.folder}}:"
-#     #       echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
-
-#     #   - name: call reusable tf with folder
