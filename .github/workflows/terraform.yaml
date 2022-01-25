@@ -12,17 +12,9 @@ jobs:
     ## FIXME: replace version with @main
     uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-matrix-reusable-workflow.yaml@tf-matrix
 
-  tf-run-matrix:
-    needs: tf-create-matrix
-    uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-    with:
-      terraform-folder: ${{ matrix.folder }}
-
-    # strategy:
-    #   matrix: ${{fromJson(needs.tf-create-matrix.outputs.matrix)}}
-    # ## FIXME: replace version with @main
-    # steps:
-    #   - name: show tf folder
-    #   - run: |
-    #       echo " folder:${{ fromJSON(matrix.folder) }}:"
-    #       echo " run:${{ fromJSON(matrix.run_terraform }}:"
+  # tf-run-matrix:
+  #   needs: tf-create-matrix
+  #   ## FIXME: replace version with @main
+  #   uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+  #   with:
+  #     terraform-folder: ${{ matrix.folder }}
