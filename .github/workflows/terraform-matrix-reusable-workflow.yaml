@@ -76,7 +76,7 @@ jobs:
     # # if: ${{ needs.create-terraform-matrix.outputs.matrix != ''}}
     if: ${{ needs.create-terraform-matrix.outputs.run_terraform == 'YES'}}
     strategy:
-      fail-fast: true
+      # fail-fast: true
       matrix: ${{ fromJSON(needs.create-terraform-matrix.outputs.matrix) }}
 
     steps:
