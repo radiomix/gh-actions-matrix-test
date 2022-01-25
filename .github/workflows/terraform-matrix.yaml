@@ -87,7 +87,7 @@ jobs:
     if: ${{ needs.create-terraform-matrix.outputs.run_terraform == 'YES'}}
     strategy:
       fail-fast: true
-      matrix: ${{ needs.create-terraform-matrix.outputs.matrix.folder }}
+      matrix: ${{ fromJSON(needs.create-terraform-matrix.outputs.matrix) }}
 
     steps:
       - name: show tf folder
