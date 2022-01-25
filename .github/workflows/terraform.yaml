@@ -8,13 +8,15 @@ on:
   push:
 
 jobs:
-  tf-create-matrix:
+  tf-matrix:
+    name: TF matrix
     ## FIXME: replace version with @main
     uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-matrix-reusable-workflow.yaml@tf-matrix
 
-  tf-run-matrix:
-    needs: tf-create-matrix
-    ## FIXME: replace version with @main
-    uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-    with:
-      terraform-folder: ${{ fromJSON(needs.tf-create-matrix.outpus.matrix.folder) }}
+  # tf-run-matrix:
+  #   name: run TF matrix
+  #   needs: tf-create-matrix
+  #   ## FIXME: replace version with @main
+  #   uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+  #   with:
+  #     terraform-folder: ${{ fromJSON(needs.tf-create-matrix.outpus.matrix.folder) }}

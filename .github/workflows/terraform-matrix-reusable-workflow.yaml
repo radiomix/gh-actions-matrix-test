@@ -64,10 +64,10 @@ jobs:
           echo ::set-output name=run_terraform::${{ 'NO' }}
         fi
 
-    - name: show folder
-      run: |
-        echo " Run Terraform:'${{ steps.create-folder-matrix.outputs.run_terraform}}'"
-        echo " folder:'${{ steps.create-folder-matrix.outputs.matrix}}'"
+    # - name: show folder
+    #   run: |
+    #     echo " Run Terraform:'${{ steps.create-folder-matrix.outputs.run_terraform}}'"
+    #     echo " folder:'${{ steps.create-folder-matrix.outputs.matrix}}'"
 
   run-terraform-matrix:
     needs: create-terraform-matrix
@@ -84,4 +84,78 @@ jobs:
         run: |
           echo " Folder:${{ matrix.folder}}:"
           echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
+
+     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          # Only partly explained: https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
+          # Nice explanation of 'git checkout HEAD^1': https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
+          # fetch-depth 0 = full history, 1 = only last commit (default), 2 = HEAD^ (last PARENT commit or merge in)
+          fetch-depth: 2  # OR "2" -> To retrieve the preceding commit.
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.6
+          # cli_config_credentials_token: ${{ secrets.cli_config_credentials_token }}
+
+      # - name: Terraform fmt
+      #   id: fmt
+      #   if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #   run: terraform fmt -check
+
+      # - name: Terraform init
+      #   id: init
+      #   if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #   run: terraform init
+      #   continue-on-error: false
+
+      # - name: Terraform validate
+      #   id: validate
+      #   if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #   run: terraform validate
+
+      # - name: Terraform plan
+      #   id: plan
+      #   if: github.event_name == 'pull_request' && steps.changed-files-specific.outputs.any_changed == 'true'
+      #   run: terraform plan -no-color
+      #   continue-on-error: true
+
+      # - name: Update Pull Request
+      #   if: github.event_name == 'pull_request' && steps.changed-files-specific.outputs.any_changed == 'true'
+      #   uses: actions/github-script@v4.0.2
+
+      #   env:
+      #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+      #       #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+      #       #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+      #       #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+      #       <details><summary>Show Plan</summary>
+
+      #       \`\`\`\n
+      #       ${process.env.PLAN}
+      #       \`\`\`
+
+      #       </details>
+
+      #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+      #       github.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
+
+      # - name: Terraform Plan Status
+      #   if: steps.plan.outcome == 'failure' && steps.changed-files-specific.outputs.any_changed == 'true'
+      #   run: exit 1
+
+      # - name: Terraform Apply
+      #   if: github.ref == 'refs/heads/master' && github.event_name == 'push' && steps.changed-files-specific.outputs.any_changed == 'true'
+      #   run: terraform apply -auto-approve
 
