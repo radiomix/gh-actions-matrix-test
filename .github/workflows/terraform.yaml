@@ -17,4 +17,4 @@ jobs:
     ## FIXME: replace version with @main
     uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
     with:
-      terraform-folder: ${{ matrix.folder }}
+      terraform-folder: ${{ fromJSON(needs.tf-create-matrix.outpus.matrix.folder) }}
