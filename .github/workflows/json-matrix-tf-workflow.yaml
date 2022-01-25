@@ -3,12 +3,18 @@
 # Source: https://github.blog/changelog/2020-04-15-github-actions-new-workflow-features/
 #   - Now you can include completely new combinations and even specify all of your matrix legs with include.
 #   - The Actions expression language has a fromJSON(value) method that can take a stingified JSON object and bind it to a property.
-#   - Combining this with run-tf-matrix.outputs you can build a workflow that has a fully dynamic matrix.
+#   - Combining this with run-json-matrix.outputs you can build a workflow that has a fully dynamic matrix.
 #
 
 name: json-tf-matrix
-# only run manually
-on: workflow_dispatch
+# # only run manually
+# on: workflow_dispatch
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
 jobs:
   create-json-matrix:
     runs-on: ubuntu-latest
@@ -62,10 +68,10 @@ jobs:
         echo " folder:'${{ steps.set-tf-matrix.outputs.matrix}}'"
         echo " Do we have changed-files:'${{ steps.check-terraform-folder-for-changed-files.outpus.any_changed }}'"
 
-  run-tf-matrix:
+  run-json-matrix:
     needs: create-json-matrix
     # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
-    if: ${{ needs.tf-matrix.outputs.matrix != ''}}
+    if: ${{ needs.set-tf-matrix.outputs.matrix != ''}}
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJson(needs.create-json-matrix.outputs.matrix)}}
