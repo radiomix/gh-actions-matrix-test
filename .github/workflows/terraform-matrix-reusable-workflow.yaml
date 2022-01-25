@@ -77,19 +77,19 @@ jobs:
     #     working-directory: ${{ matrix.folder}}
 
     steps:
-      - name: show terraform folder
-        run: |
-          echo " Folder:${{ matrix.folder}}:"
-          echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
-          echo " We are in $(pwd)"
-          ls -la
-
       - uses: actions/checkout@v2
         with:
           # Only partly explained: https://github.com/actions/checkout#fetch-all-history-for-all-tags-and-branches
           # Nice explanation of 'git checkout HEAD^1': https://stackoverflow.com/questions/2221658/whats-the-difference-between-head-and-head-in-git
           # fetch-depth 0 = full history, 1 = only last commit (default), 2 = HEAD^ (last PARENT commit or merge in)
           fetch-depth: 2  # OR "2" -> To retrieve the preceding commit.
+
+      - name: show terraform folder
+        run: |
+          echo " Folder:${{ matrix.folder}}:"
+          echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
+          echo " We are in $(pwd)"
+          ls -la
 
       - uses: hashicorp/setup-terraform@v1
         with:
