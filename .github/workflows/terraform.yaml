@@ -10,5 +10,4 @@ on:
 jobs:
   tf-matrix:
     name: TF matrix
-    ## FIXME: replace version with @main
-    uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-matrix-reusable-workflow.yaml@tf-matrix
+    uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-matrix-reusable-workflow.yaml@main
