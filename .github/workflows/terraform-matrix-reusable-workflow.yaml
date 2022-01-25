@@ -22,10 +22,11 @@ jobs:
       id: check-terraform-folder-for-changed-files
       # Only run terraform IF tf files changed: https://github.com/tj-actions/changed-files
       # output: all_changed_and_modified_files (list of all files changed/modified)
-      uses: tj-actions/changed-files@v13
+      uses: tj-actions/changed-files@v13.2
       with:
         files: |
           terraform/**/*tf
+        since_last_remote_commit: true
 
     - name: set tf matrix
       id: create-folder-matrix
