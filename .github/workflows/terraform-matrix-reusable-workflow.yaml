@@ -72,15 +72,17 @@ jobs:
     if: ${{ needs.create-terraform-matrix.outputs.run_terraform == 'YES'}}
     strategy:
       matrix: ${{ fromJSON(needs.create-terraform-matrix.outputs.matrix) }}
-    defaults:
-      run:
-        working-directory: ${{ matrix.folder}}
+    # defaults:
+    #   run:
+    #     working-directory: ${{ matrix.folder}}
 
     steps:
       - name: show terraform folder
         run: |
           echo " Folder:${{ matrix.folder}}:"
           echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
+          echo " We are in $(pwd)"
+          ls -la
 
       - uses: actions/checkout@v2
         with:
