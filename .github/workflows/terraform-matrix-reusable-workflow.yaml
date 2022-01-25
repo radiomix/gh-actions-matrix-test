@@ -72,9 +72,9 @@ jobs:
     if: ${{ needs.create-terraform-matrix.outputs.run_terraform == 'YES'}}
     strategy:
       matrix: ${{ fromJSON(needs.create-terraform-matrix.outputs.matrix) }}
-    # defaults:
-    #   run:
-    #     working-directory: ${{ matrix.folder}}
+    defaults:
+      run:
+        working-directory: ${{ matrix.folder}}
 
     steps:
       - uses: actions/checkout@v2
