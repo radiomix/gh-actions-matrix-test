@@ -94,7 +94,8 @@ jobs:
         run: |
           echo " Folder:${{ matrix.folder}}:"
           echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
-    #   - name: run tf in folder
-    # uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-    # with:
-    #     terraform-folder: ${{ fromJSON(needs.create-terraform-matrix.outputs.folder)}}
+
+      - name: call reusable tf with folder
+        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+        with:
+          terraform-folder: ${{ fromJSON(needs.create-terraform-matrix.outputs.folder)}}
