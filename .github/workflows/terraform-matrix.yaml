@@ -80,18 +80,21 @@ jobs:
 # run tf reusable workflow #
 ############################
   run-reusable-tf-matrix:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
     needs: create-terraform-matrix
     # # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
     # # if: ${{ needs.create-terraform-matrix.outputs.matrix != ''}}
     if: ${{ needs.create-terraform-matrix.outputs.run_terraform == 'YES'}}
+    strategy:
+      fail-fast: true
+      matrix: ${{ needs.create-terraform-matrix.outputs.matrix }}
 
     steps:
       - name: show tf folder
         run: |
           echo " Folder:${{ matrix.folder}}:"
           echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
-      - name: run tf in folder
-        uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
-        with:
-          terraform-folder: ${{ fromJSON(needs.create-terraform-matrix.outputs.folder)}}
+    #   - name: run tf in folder
+    # uses: radiomix/gh-actions-matrix-test/.github/workflows/terraform-base-reusable-workflow.yaml@tf-matrix
+    # with:
+    #     terraform-folder: ${{ fromJSON(needs.create-terraform-matrix.outputs.folder)}}
