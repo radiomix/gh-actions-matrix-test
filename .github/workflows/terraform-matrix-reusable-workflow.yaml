@@ -16,7 +16,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       uses: actions/checkout@v2
       with:
-        fetch-depth: 2
+        fetch-depth: 0
 
     - name: test changed files
       id: check-terraform-folder-for-changed-files
