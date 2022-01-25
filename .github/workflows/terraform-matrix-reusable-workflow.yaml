@@ -69,10 +69,7 @@ jobs:
         echo " Run Terraform:'${{ steps.create-folder-matrix.outputs.run_terraform}}'"
         echo " folder:'${{ steps.create-folder-matrix.outputs.matrix}}'"
 
-# ############################
-# # run tf workflow #
-# ############################
-  run-reusable-terraform:
+  run-terraform-matrix:
     needs: create-terraform-matrix
     runs-on: ubuntu-latest
     # # See: https://github.community/t/github-actions-show-pipeline-failed-with-red-cross-while-all-jobs-succeeded/189036/3
@@ -83,7 +80,7 @@ jobs:
       matrix: ${{ fromJSON(needs.create-terraform-matrix.outputs.matrix) }}
 
     steps:
-      - name: show tf folder
+      - name: show terraform folder
         run: |
           echo " Folder:${{ matrix.folder}}:"
           echo " Run Terraform:${{ needs.create-terraform-matrix.outputs.run_terraform }}:"
