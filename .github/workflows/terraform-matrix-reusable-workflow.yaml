@@ -24,7 +24,7 @@ jobs:
 
     - name: test changed files
       id: check-terraform-folder-for-changed-files
-      uses: tj-actions/changed-files@v13.2
+      uses: tj-actions/changed-files@v41
       with:
         files: |
           terraform/**/*tf
