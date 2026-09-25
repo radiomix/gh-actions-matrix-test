@@ -17,7 +17,7 @@ jobs:
     steps:
     - name: checkout code
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
       with:
         fetch-depth: 2
 
@@ -76,7 +76,7 @@ jobs:
         run: |
           echo " folder:${{ matrix.folder}}"
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 2
 
