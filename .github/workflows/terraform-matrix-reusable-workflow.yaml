@@ -91,7 +91,7 @@ jobs:
           echo " We are in $(pwd)"
           ls -la
 
-      - uses: hashicorp/setup-terraform@v1
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.0.6
           # FIXME: cli_config_credentials_token: ${{ cli_config_credentials_token: ${{ secrets.MY_SECRET_TOKEN }}
